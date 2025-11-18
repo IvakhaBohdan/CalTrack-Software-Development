@@ -43,6 +43,3 @@ class User:
         self.meal_history = []
         self.activity_history = []
 
-
-user1 = User("Богдан", 25, "Male", 178, 80, "moderate", "loss")
-print(f"Ціль калорій для {user1.name}: {user1.daily_calories_target} ккал")
