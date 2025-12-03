@@ -11,7 +11,7 @@ pygame.init()
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 900
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("CalTrack: Демонстрація Повної Моделі (15/15 Карток)")
+pygame.display.set_caption("CalTrack: Демонстрація Моделі")
 font = pygame.font.Font(None, 30)
 text_color = (255, 255, 255) 
 background_color = (0, 50, 100)
@@ -25,7 +25,7 @@ test_user = User(
     gender="Male", 
     height=178, 
     weight=80, 
-    activityLevel="moderate", 
+    activityLevel="sleeping", 
     goal="loss"
 )
 target_cal = test_user.daily_calories_target
