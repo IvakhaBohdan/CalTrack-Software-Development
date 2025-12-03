@@ -33,8 +33,7 @@ class Meal:
         return total
     
 class Activity:
-    
-    # Коефіцієнти спалювання калорій на хвилину
+
     CALORIES_PER_MINUTE = {
         "running": 10.0,
         "walking": 4.5,
