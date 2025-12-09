@@ -1,46 +1,53 @@
-name: CI/CD Pipeline
+name: CalTrack CI/CD Pipeline
 
 on:
   push:
-    branches:
-      - main
-      - master
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Отримання коду з репозиторію
+      # 1. Клонування репозиторію
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      # 2. Виведення інформації про автора комміта
-      - name: Print commit author info
+      # 2. Виведення інформації про виконавця
+      - name: Display Author Info
         run: |
-          echo "Author name: ${{ github.event.head_commit.author.name }}"
-          echo "Author email: ${{ github.event.head_commit.author.email }}"
-          echo "Student: Іваха Богдан (КВ-32)"
+          echo "========================================="
+          echo "  CI/CD Pipeline for CalTrack"
+          echo "  Student: Іваха Богдан (Group КВ-32)"
+          echo "  Date: $(date)"
+          echo "========================================="
 
-      # 3. Налаштування Python
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      # 4. Встановлення залежностей (автоматичне "збирання" Python застосунку)
-      - name: Install dependencies and build app
+      # 3. Імітація процесу збірки — архівація проекту
+      - name: Package Project
         run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          echo "App build completed."
+          echo "Creating project archive..."
+          mkdir -p build
+          zip -r build/CalTrack_Project.zip *.py Assets
+          echo "Project archive created successfully!"
 
-      # 5. Створення релізу
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
+      # 4. Генерація унікального тегу для релізу
+      - name: Generate Release Version
+        id: release
+        run: echo "release_tag=v1.0.$(date +%s)" >> $GITHUB_OUTPUT
+
+      # 5. Публікація релізу на GitHub
+      - name: Publish Release
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ github.run_number }}
-          name: "Release ${{ github.run_number }}"
-          body: "Автоматично створений реліз CI/CD Workflow."
+          tag_name: ${{ steps.release.outputs.release_tag }}
+          name: "CalTrack Release ${{ steps.release.outputs.release_tag }}"
+          body: |
+            Автоматично створений реліз для лабораторної роботи.
+            Виконавець: Іваха Богдан, КВ-32.
+          files: build/CalTrack_Project.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
