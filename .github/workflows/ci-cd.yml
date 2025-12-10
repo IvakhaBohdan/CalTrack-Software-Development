@@ -1,10 +1,12 @@
-name: CalTrack CI/CD Pipeline
+name: CI/CD Pipeline for CalTrack
 
+# Тригер: запускати при будь-якому push у гілку main
 on:
   push:
-    branches: ["main"]
+    branches: [ "main" ]
   workflow_dispatch:
 
+# Дозвіл на запис 
 permissions:
   contents: write
 
@@ -13,41 +15,44 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Клонування репозиторію
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      # 1. Завантажуємо файли з репозиторію
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      # 2. Виведення інформації про виконавця
-      - name: Display Author Info
+      # 2. Вивід інформації про автора (Вимога завдання)
+      - name: Print Author Info (Ivakha Bohdan, KV-32)
         run: |
-          echo "========================================="
-          echo "  CI/CD Pipeline for CalTrack"
-          echo "  Date: $(date)"
-          echo "  Student: КВ-32 Іваха Богдан"
-          echo "========================================="
+          echo "Лабораторна робота: Іваха Богдан, КВ-32"
+          echo "Збірку ініційовано користувачем GitHub: ${{ github.actor }}"
+          echo "Повідомлення коміту: ${{ github.event.head_commit.message }}"
 
-      # 3. Імітація процесу збірки — архівація проекту
-      - name: Package Project
+      # 3. Автоматичне збирання додатку
+      - name: Build Application (Archiving src folder)
         run: |
-          echo "Creating project archive..."
-          mkdir -p build
-          zip -r build/CalTrack_Project.zip src
-          echo "Project archive created successfully!"
+          echo "Початок процесу збірки..."
+          if [ -d "src" ]; then
+            # Створюємо ZIP-архів з вмістом папки src
+            zip -r CalTrack-Build.zip src/
+            echo "Збірка успішна. Артефакт CalTrack-Build.zip створено."
+          else
+            echo "Помилка: Папка 'src' не знайдена. Збірку неможливо виконати."
+            exit 1
+          fi
 
-      # 4. Генерація унікального тегу для релізу
-      - name: Generate Release Version
-        id: release
-        run: echo "release_tag=v1.0.$(date +%s)" >> $GITHUB_OUTPUT
-
-      # 5. Публікація релізу на GitHub
-      - name: Publish Release
+      # 4. Публікація реліза в репозиторії GitHub
+      # Використовуємо номер поточного запуску для унікального тегу версії
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.release.outputs.release_tag }}
-          name: "CalTrack Release ${{ steps.release.outputs.release_tag }}"
+          tag_name: v1.0.${{ github.run_number }}
+          name: Auto Release v1.0.${{ github.run_number }}
           body: |
-            Автоматично створений реліз для лабораторної роботи.
-            Виконавець: Іваха Богдан, КВ-32.
-          files: build/CalTrack_Project.zip
+            ## Автоматичний реліз CalTrack
+            
+            Ця версія зібрана та опублікована системою GitHub Actions.
+            
+            **Автор змін:** ${{ github.actor }}
+            **Збірка №:** ${{ github.run_number }}
+          files: CalTrack-Build.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
